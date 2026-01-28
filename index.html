@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA/QC Testing Management System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --success: #22C55E;
+            --info: #3B82F6;
+            --bg-dark: #0F172A;
+            --bg-darker: #020617;
+            --bg-card: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border: #334155;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.03;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: patternMove 20s linear infinite;
+        }
+        
+        @keyframes patternMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .logo {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+        
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-section-title {
+            padding: 0 1.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .nav-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            font-size: 0.875rem;
+        }
+        
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--text-primary);
+            border-left-color: var(--primary);
+        }
+        
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            width: calc(100% - 280px);
+        }
+        
+        /* Header */
+        .page-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+        }
+        
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.primary { background: rgba(99, 102, 241, 0.1); }
+        .stat-icon.success { background: rgba(34, 197, 94, 0.1); }
+        .stat-icon.danger { background: rgba(239, 68, 68, 0.1); }
+        .stat-icon.warning { background: rgba(245, 158, 11, 0.1); }
+        .stat-icon.info { background: rgba(59, 130, 246, 0.1); }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--danger); }
+        
+        /* Content Card */
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead tr {
+            background: var(--bg-dark);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        
+        .status-badge.passed { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .status-badge.passed::before { background: var(--success); }
+        
+        .status-badge.failed { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .status-badge.failed::before { background: var(--danger); }
+        
+        .status-badge.pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .status-badge.pending::before { background: var(--warning); }
+        
+        .status-badge.blocked { background: rgba(148, 163, 184, 0.15); color: var(--text-secondary); }
+        .status-badge.blocked::before { background: var(--text-secondary); }
+        
+        .status-badge.critical { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .status-badge.high { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-badge.medium { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .status-badge.low { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Forms */
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .tab {
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        
+        .tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab.active {
+            color: var(--primary);
+        }
+        
+        .tab.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Priority Indicator */
+        .priority-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .priority-dot.critical { background: var(--danger); }
+        .priority-dot.high { background: var(--warning); }
+        .priority-dot.medium { background: var(--info); }
+        .priority-dot.low { background: var(--success); }
+        
+        /* Action Menu */
+        .action-menu {
+            position: relative;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .action-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-width: 180px;
+            box-shadow: var(--shadow-xl);
+            z-index: 100;
+            margin-top: 0.5rem;
+        }
+        
+        .action-dropdown.active {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .action-item {
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background 0.2s ease;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .action-item:last-child {
+            border-bottom: none;
+        }
+        
+        .action-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--success);
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+        
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--info);
+        }
+        
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        /* Chart Styles */
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .chart-bar:hover {
+            opacity: 0.8;
+            transform: translateY(-4px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .header-top {
+                flex-direction: column;
+            }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-darker);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        /* Page transitions */
+        .page {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        .font-bold { font-weight: 700; }
+        .text-sm { font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h1>QA/QC Testing System</h1>
+                <p class="logo-subtitle">v1.0.0 | Production Ready</p>
+            </div>
+            
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <div class="nav-item active" onclick="showPage('dashboard')">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('analytics')">
+                        <span class="nav-icon">📈</span>
+                        <span>Analytics</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Testing Lifecycle</div>
+                    <div class="nav-item" onclick="showPage('requirements')">
+                        <span class="nav-icon">📋</span>
+                        <span>Requirements Analysis</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('test-design')">
+                        <span class="nav-icon">🎨</span>
+                        <span>Test Design</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('test-execution')">
+                        <span class="nav-icon">▶️</span>
+                        <span>Test Execution</span>
+                        <span class="badge">12</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('test-closure')">
+                        <span class="nav-icon">✅</span>
+                        <span>Test Closure</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Test Management</div>
+                    <div class="nav-item" onclick="showPage('test-cases')">
+                        <span class="nav-icon">📝</span>
+                        <span>Test Cases</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('defects')">
+                        <span class="nav-icon">🐛</span>
+                        <span>Defect Tracking</span>
+                        <span class="badge">8</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('test-plans')">
+                        <span class="nav-icon">📑</span>
+                        <span>Test Plans</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('rtm')">
+                        <span class="nav-icon">🔗</span>
+                        <span>Traceability Matrix</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <div class="nav-item" onclick="showPage('team')">
+                        <span class="nav-icon">👥</span>
+                        <span>Team Management</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('environments')">
+                        <span class="nav-icon">🖥️</span>
+                        <span>Test Environments</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('documentation')">
+                        <span class="nav-icon">📚</span>
+                        <span>Documentation</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports & Metrics</div>
+                    <div class="nav-item" onclick="showPage('reports')">
+                        <span class="nav-icon">📄</span>
+                        <span>Generate Reports</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('metrics')">
+                        <span class="nav-icon">📊</span>
+                        <span>Quality Metrics</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('audit')">
+                        <span class="nav-icon">🔍</span>
+                        <span>Audit & Compliance</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>Dashboard</span>
+                            </div>
+                            <h2 class="page-title">Testing Dashboard</h2>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="openModal('newTestPlan')">
+                                <span>➕</span>
+                                New Test Plan
+                            </button>
+                            <button class="btn btn-primary" onclick="openModal('newTestCase')">
+                                <span>📝</span>
+                                Create Test Case
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Key Metrics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Test Cases</span>
+                            <div class="stat-icon primary">📝</div>
+                        </div>
+                        <div class="stat-value">1,247</div>
+                        <div class="stat-change positive">
+                            <span>↑ 12%</span>
+                            <span>from last week</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Tests Passed</span>
+                            <div class="stat-icon success">✅</div>
+                        </div>
+                        <div class="stat-value">1,098</div>
+                        <div class="stat-change positive">
+                            <span>88.0%</span>
+                            <span>pass rate</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Active Defects</span>
+                            <div class="stat-icon danger">🐛</div>
+                        </div>
+                        <div class="stat-value">28</div>
+                        <div class="stat-change negative">
+                            <span>↓ 15%</span>
+                            <span>resolved this week</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Test Coverage</span>
+                            <div class="stat-icon warning">📊</div>
+                        </div>
+                        <div class="stat-value">94.2%</div>
+                        <div class="stat-change positive">
+                            <span>↑ 2.1%</span>
+                            <span>target: 95%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Current Test Execution -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Test Execution Cycles</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="openModal('newTestRun')">
+                            <span>▶️</span>
+                            Start New Run
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Test Plan</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Industry</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-test-plans-tbody">
+                                <tr>
+                                    <td><strong>Real Estate MLS Integration Testing</strong></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 75%"></div>
+                                        </div>
+                                        <small class="text-secondary mt-1">75% (300/400 test cases)</small>
+                                    </td>
+                                    <td><span class="status-badge pending">In Progress</span></td>
+                                    <td>Sarah Johnson</td>
+                                    <td><span class="status-badge medium">Real Estate</span></td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">⋮</button>
+                                            <div class="action-dropdown">
+                                                <div class="action-item" onclick="alert('View details')">📊 View Details</div>
+                                                <div class="action-item" onclick="alert('Edit plan')">✏️ Edit</div>
+                                                <div class="action-item" onclick="alert('Generate report')">📄 Generate Report</div>
+                                                <div class="action-item" onclick="alert('Export data')">💾 Export Data</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Healthcare HIPAA Compliance Validation</strong></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 92%"></div>
+                                        </div>
+                                        <small class="text-secondary mt-1">92% (230/250 test cases)</small>
+                                    </td>
+                                    <td><span class="status-badge pending">In Progress</span></td>
+                                    <td>Michael Chen</td>
+                                    <td><span class="status-badge high">Healthcare</span></td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">⋮</button>
+                                            <div class="action-dropdown">
+                                                <div class="action-item">📊 View Details</div>
+                                                <div class="action-item">✏️ Edit</div>
+                                                <div class="action-item">📄 Generate Report</div>
+                                                <div class="action-item">💾 Export Data</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AI/ML Model Bias & Fairness Testing</strong></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 100%"></div>
+                                        </div>
+                                        <small class="text-secondary mt-1">100% (180/180 test cases)</small>
+                                    </td>
+                                    <td><span class="status-badge passed">Completed</span></td>
+                                    <td>Alex Rodriguez</td>
+                                    <td><span class="status-badge critical">AI/ML</span></td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">⋮</button>
+                                            <div class="action-dropdown">
+                                                <div class="action-item">📊 View Details</div>
+                                                <div class="action-item">✏️ Edit</div>
+                                                <div class="action-item">📄 Generate Report</div>
+                                                <div class="action-item">💾 Export Data</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Brokerage Trading Platform Security</strong></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 45%"></div>
+                                        </div>
+                                        <small class="text-secondary mt-1">45% (135/300 test cases)</small>
+                                    </td>
+                                    <td><span class="status-badge pending">In Progress</span></td>
+                                    <td>David Kumar</td>
+                                    <td><span class="status-badge critical">Brokerage</span></td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">⋮</button>
+                                            <div class="action-dropdown">
+                                                <div class="action-item">📊 View Details</div>
+                                                <div class="action-item">✏️ Edit</div>
+                                                <div class="action-item">📄 Generate Report</div>
+                                                <div class="action-item">💾 Export Data</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Food & Beverage POS Integration</strong></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 60%"></div>
+                                        </div>
+                                        <small class="text-secondary mt-1">60% (120/200 test cases)</small>
+                                    </td>
+                                    <td><span class="status-badge pending">In Progress</span></td>
+                                    <td>Emma Wilson</td>
+                                    <td><span class="status-badge low">Food & Beverage</span></td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="action-btn" onclick="toggleDropdown(this)">⋮</button>
+                                            <div class="action-dropdown">
+                                                <div class="action-item">📊 View Details</div>
+                                                <div class="action-item">✏️ Edit</div>
+                                                <div class="action-item">📄 Generate Report</div>
+                                                <div class="action-item">💾 Export Data</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Recent Defects -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Critical Defects</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="showPage('defects')">View All Defects</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Severity</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Age</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-defects-tbody">
+                                <tr>
+                                    <td><strong>#DEF-1234</strong></td>
+                                    <td>MLS synchronization fails with special characters in property description</td>
+                                    <td><span class="status-badge critical">Critical</span></td>
+                                    <td><span class="priority-dot critical"></span>P1</td>
+                                    <td><span class="status-badge pending">Open</span></td>
+                                    <td>John Developer</td>
+                                    <td class="text-secondary">2 days</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#DEF-1235</strong></td>
+                                    <td>HIPAA audit log missing critical user actions and timestamps</td>
+                                    <td><span class="status-badge high">High</span></td>
+                                    <td><span class="priority-dot high"></span>P1</td>
+                                    <td><span class="status-badge pending">In Progress</span></td>
+                                    <td>Jane Smith</td>
+                                    <td class="text-secondary">1 day</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#DEF-1236</strong></td>
+                                    <td>AI model demonstrates bias in demographic predictions</td>
+                                    <td><span class="status-badge critical">Critical</span></td>
+                                    <td><span class="priority-dot critical"></span>P0</td>
+                                    <td><span class="status-badge blocked">Blocked</span></td>
+                                    <td>AI Research Team</td>
+                                    <td class="text-secondary">5 days</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#DEF-1237</strong></td>
+                                    <td>Trade execution latency exceeds 100ms regulatory threshold</td>
+                                    <td><span class="status-badge high">High</span></td>
+                                    <td><span class="priority-dot high"></span>P1</td>
+                                    <td><span class="status-badge pending">Open</span></td>
+                                    <td>Performance Team</td>
+                                    <td class="text-secondary">3 days</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#DEF-1238</strong></td>
+                                    <td>Inventory expiration date calculation incorrect for leap years</td>
+                                    <td><span class="status-badge medium">Medium</span></td>
+                                    <td><span class="priority-dot medium"></span>P2</td>
+                                    <td><span class="status-badge passed">Resolved</span></td>
+                                    <td>Backend Team</td>
+                                    <td class="text-secondary">Closed</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test Cases Page -->
+            <div id="page-test-cases" class="page" style="display: none;">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>Test Cases</span>
+                            </div>
+                            <h2 class="page-title">Test Case Repository</h2>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary">
+                                <span>📥</span>
+                                Import
+                            </button>
+                            <button class="btn btn-secondary">
+                                <span>📤</span>
+                                Export
+                            </button>
+                            <button class="btn btn-primary" onclick="openModal('newTestCase')">
+                                <span>➕</span>
+                                New Test Case
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="content-card">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="form-group">
+                            <label class="form-label">Industry</label>
+                            <select class="form-select">
+                                <option>All Industries</option>
+                                <option>Real Estate</option>
+                                <option>Healthcare/Medical</option>
+                                <option>Food & Beverage</option>
+                                <option>Brokerage</option>
+                                <option>AI/ML</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Test Type</label>
+                            <select class="form-select">
+                                <option>All Types</option>
+                                <option>Functional</option>
+                                <option>Integration</option>
+                                <option>Performance</option>
+                                <option>Security</option>
+                                <option>Compliance</option>
+                                <option>Usability</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <select class="form-select">
+                                <option>All Priorities</option>
+                                <option>Critical</option>
+                                <option>High</option>
+                                <option>Medium</option>
+                                <option>Low</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select">
+                                <option>All Status</option>
+                                <option>Draft</option>
+                                <option>Ready</option>
+                                <option>In Review</option>
+                                <option>Approved</option>
+                                <option>Deprecated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <input type="text" class="form-input" placeholder="🔍 Search test cases by ID, title, or tags...">
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Test Case Title</th>
+                                    <th>Industry</th>
+                                    <th>Type</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Automation</th>
+                                    <th>Created By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="test-cases-tbody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        Loading test cases...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports Page -->
+            <div id="page-reports" class="page" style="display: none;">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>Reports</span>
+                            </div>
+                            <h2 class="page-title">Generate Reports</h2>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <span>ℹ️</span>
+                    <span>All reports include data from deliverables specified in the QA/QC Comprehensive Procedure Manual</span>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card" style="cursor: pointer;" onclick="generateReport('test-summary')">
+                        <div class="stat-header">
+                            <span class="stat-label">Test Summary Report</span>
+                            <div class="stat-icon primary">📄</div>
+                        </div>
+                        <p class="text-secondary text-sm mt-1">
+                            Comprehensive overview of test activities, execution status, quality metrics, and deliverables from all testing phases
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;">Generate Report</button>
+                    </div>
+                    
+                    <div class="stat-card" style="cursor: pointer;" onclick="generateReport('defect-analysis')">
+                        <div class="stat-header">
+                            <span class="stat-label">Defect Analysis Report</span>
+                            <div class="stat-icon danger">🐛</div>
+                        </div>
+                        <p class="text-secondary text-sm mt-1">
+                            Detailed defect metrics including severity distribution, resolution time, defect density, and trend analysis
+                        </p>
+                        <button class="btn btn-danger" style="margin-top: 1rem; width: 100%;">Generate Report</button>
+                    </div>
+                    
+                    <div class="stat-card" style="cursor: pointer;" onclick="generateReport('test-coverage')">
+                        <div class="stat-header">
+                            <span class="stat-label">Requirements Coverage</span>
+                            <div class="stat-icon success">📊</div>
+                        </div>
+                        <p class="text-secondary text-sm mt-1">
+                            Requirements Traceability Matrix (RTM), test coverage analysis by module, feature, and requirement mapping
+                        </p>
+                        <button class="btn btn-success" style="margin-top: 1rem; width: 100%;">Generate Report</button>
+                    </div>
+                    
+                    <div class="stat-card" style="cursor: pointer;" onclick="generateReport('execution-metrics')">
+                        <div class="stat-header">
+                            <span class="stat-label">Execution Metrics</span>
+                            <div class="stat-icon warning">📈</div>
+                        </div>
+                        <p class="text-secondary text-sm mt-1">
+                            Test execution velocity, pass/fail trends, team productivity, test cycle effectiveness, and KPI tracking
+                        </p>
+                        <button class="btn btn-warning" style="margin-top: 1rem; width: 100%;">Generate Report</button>
+                    </div>
+                    
+                    <div class="stat-card" style="cursor: pointer;" onclick="generateReport('compliance')">
+                        <div class="stat-header">
+                            <span class="stat-label">Compliance Report</span>
+                            <div class="stat-icon info">✅</div>
+                        </div>
+                        <p class="text-secondary text-sm mt-1">
+                            Industry-specific compliance testing results: HIPAA, PCI-DSS, GDPR, FDA, FINRA, SEC regulations
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;">Generate Report</button>
+                    </div>
+                    
+                    <div class="stat-card" style="cursor: pointer;" onclick="generateReport('release-readiness')">
+                        <div class="stat-header">
+                            <span class="stat-label">Release Readiness</span>
+                            <div class="stat-icon success">🚀</div>
+                        </div>
+                        <p class="text-secondary text-sm mt-1">
+                            Go/No-Go decision support with quality gates assessment, risk evaluation, and release recommendations
+                        </p>
+                        <button class="btn btn-success" style="margin-top: 1rem; width: 100%;">Generate Report</button>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Custom Report Builder</h3>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Report Title</label>
+                            <input type="text" class="form-input" placeholder="Enter custom report title">
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Date Range</label>
+                                <select class="form-select">
+                                    <option>Last 7 days</option>
+                                    <option>Last 30 days</option>
+                                    <option>Last Quarter</option>
+                                    <option>Last 6 Months</option>
+                                    <option>Last Year</option>
+                                    <option>Custom Range</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Industry Filter</label>
+                                <select class="form-select">
+                                    <option>All Industries</option>
+                                    <option>Real Estate</option>
+                                    <option>Healthcare/Medical</option>
+                                    <option>Food & Beverage</option>
+                                    <option>Brokerage</option>
+                                    <option>AI/ML</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Test Phase</label>
+                                <select class="form-select">
+                                    <option>All Phases</option>
+                                    <option>Requirements Analysis</option>
+                                    <option>Test Design</option>
+                                    <option>Test Execution</option>
+                                    <option>Test Closure</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Include Sections</label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox" checked> Executive Summary
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox" checked> Test Execution Details
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox" checked> Defect Analysis
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox" checked> Quality Metrics & KPIs
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox"> RTM Coverage Matrix
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox"> Team Performance
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox"> Test Environment Details
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox"> Risk Assessment
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox"> Compliance Status
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input type="checkbox"> Lessons Learned
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Export Format</label>
+                            <div class="flex gap-2">
+                                <button class="btn btn-secondary">📄 PDF</button>
+                                <button class="btn btn-secondary">📊 Excel</button>
+                                <button class="btn btn-secondary">📝 Word</button>
+                                <button class="btn btn-secondary">💾 CSV</button>
+                                <button class="btn btn-secondary">📧 Email</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary">
+                                <span>📥</span>
+                                Generate & Download Report
+                            </button>
+                            <button class="btn btn-secondary">
+                                <span>👁️</span>
+                                Preview Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Defects Page -->
+            <div id="page-defects" class="page" style="display: none;">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>Defect Tracking</span>
+                            </div>
+                            <h2 class="page-title">Defect Management</h2>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="openModal('newDefect')">
+                                <span>🐛</span>
+                                Report New Defect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Defects</div>
+                        <div class="stat-value" style="font-size: 2rem;">142</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Open</div>
+                        <div class="stat-value" style="font-size: 2rem; color: var(--warning);">28</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">In Progress</div>
+                        <div class="stat-value" style="font-size: 2rem; color: var(--info);">15</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Resolved</div>
+                        <div class="stat-value" style="font-size: 2rem; color: var(--success);">94</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Closed</div>
+                        <div class="stat-value" style="font-size: 2rem; color: var(--text-secondary);">5</div>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Severity</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Age</th>
+                                </tr>
+                            </thead>
+                            <tbody id="defects-tbody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        Loading defects...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Placeholder for other pages -->
+            <div id="page-analytics" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Analytics Dashboard</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Analytics and trend visualization interface...</p>
+                </div>
+            </div>
+            
+            <div id="page-requirements" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Requirements Analysis & Planning</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Requirements analysis and test planning interface...</p>
+                </div>
+            </div>
+            
+            <div id="page-test-design" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Test Design & Development</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Test design and development workspace...</p>
+                </div>
+            </div>
+            
+            <div id="page-test-execution" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Test Execution</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Test execution tracking interface...</p>
+                </div>
+            </div>
+            
+            <div id="page-test-closure" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Test Closure & Sign-Off</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Test closure and sign-off workflow...</p>
+                </div>
+            </div>
+            
+            <div id="page-test-plans" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Test Plans</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Test plan management interface...</p>
+                </div>
+            </div>
+            
+            <div id="page-rtm" class="page" style="display: none;">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>RTM</span>
+                            </div>
+                            <h2 class="page-title">Requirements Traceability Matrix</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Requirement ID</th>
+                                    <th>Title</th>
+                                    <th>Priority</th>
+                                    <th>Test Cases Count</th>
+                                    <th>Linked Test Cases</th>
+                                    <th>Coverage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rtm-tbody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        Loading RTM...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="page-team" class="page" style="display: none;">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>Team</span>
+                            </div>
+                            <h2 class="page-title">Team Management</h2>
+                        </div>
+                    </div>
+                </div>
+                <div id="team-members-container" class="stats-grid">
+                    <div class="stat-card">
+                        <p class="text-secondary">Loading team members...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="page-environments" class="page" style="display: none;">
+                <div class="page-header">
+                    <div class="header-top">
+                        <div>
+                            <div class="breadcrumb">
+                                <a href="#" onclick="showPage('dashboard')">Home</a>
+                                <span>›</span>
+                                <span>Environments</span>
+                            </div>
+                            <h2 class="page-title">Test Environments</h2>
+                        </div>
+                    </div>
+                </div>
+                <div id="environments-container" class="stats-grid">
+                    <div class="stat-card">
+                        <p class="text-secondary">Loading environments...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="page-documentation" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Documentation Repository</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">All testing documents and deliverables...</p>
+                </div>
+            </div>
+            
+            <div id="page-metrics" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Quality Metrics & KPIs</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Quality metrics tracking and KPI dashboards...</p>
+                </div>
+            </div>
+            
+            <div id="page-audit" class="page" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Audit & Compliance</h2>
+                </div>
+                <div class="content-card">
+                    <p class="text-secondary">Audit trails and compliance tracking...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal: New Test Case -->
+    <div id="modal-newTestCase" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Test Case</h3>
+                <button class="modal-close" onclick="closeModal('newTestCase')">×</button>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(event, 'basic-info')">Basic Info</button>
+                <button class="tab" onclick="switchTab(event, 'test-steps')">Test Steps</button>
+                <button class="tab" onclick="switchTab(event, 'requirements')">Requirements</button>
+                <button class="tab" onclick="switchTab(event, 'attachments')">Attachments</button>
+            </div>
+            
+            <div id="tab-basic-info" class="tab-content active">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Test Case ID</label>
+                        <input type="text" class="form-input" value="TC-AUTO-GENERATED" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Test Case Title *</label>
+                        <input type="text" id="testCaseTitle" class="form-input" placeholder="Enter descriptive test case title">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Industry *</label>
+                            <select id="testCaseIndustry" class="form-select">
+                                <option>Select Industry</option>
+                                <option>Real Estate</option>
+                                <option>Healthcare/Medical</option>
+                                <option>Food & Beverage</option>
+                                <option>Brokerage</option>
+                                <option>AI/ML</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Test Type *</label>
+                            <select id="testCaseType" class="form-select">
+                                <option>Select Type</option>
+                                <option>Functional</option>
+                                <option>Integration</option>
+                                <option>Performance</option>
+                                <option>Security</option>
+                                <option>Compliance</option>
+                                <option>Usability</option>
+                                <option>Regression</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <select id="testCasePriority" class="form-select">
+                                <option>Critical</option>
+                                <option>High</option>
+                                <option>Medium</option>
+                                <option>Low</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Automation Status</label>
+                            <select id="testCaseAutomation" class="form-select">
+                                <option>Manual</option>
+                                <option>Automated</option>
+                                <option>To Be Automated</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Assigned To</label>
+                            <select id="testCaseAssignedTo" class="form-select">
+                                <option>Select Team Member</option>
+                                <option>Sarah Johnson</option>
+                                <option>Michael Chen</option>
+                                <option>Alex Rodriguez</option>
+                                <option>David Kumar</option>
+                                <option>Emma Wilson</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="testCaseDescription" class="form-textarea" placeholder="Detailed description of what this test case validates"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Preconditions</label>
+                        <textarea id="testCasePreconditions" class="form-textarea" placeholder="Any setup or conditions required before executing this test"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tab-test-steps" class="tab-content">
+                <div class="form-group">
+                    <label class="form-label">Test Steps</label>
+                    <div id="test-steps-container">
+                        <div style="background: var(--bg-dark); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border);">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Step 1: Action</label>
+                                    <input type="text" class="form-input" placeholder="Describe the action to perform">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Expected Result</label>
+                                    <input type="text" class="form-input" placeholder="Expected outcome of this step">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%;">
+                        <span>➕</span>
+                        Add Another Step
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Test Data</label>
+                    <textarea class="form-textarea" placeholder="Test data requirements and sample values"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Expected Execution Time</label>
+                    <input type="text" class="form-input" placeholder="e.g., 15 minutes">
+                </div>
+            </div>
+            
+            <div id="tab-requirements" class="tab-content">
+                <div class="form-group">
+                    <label class="form-label">Related Requirements</label>
+                    <select class="form-select" multiple style="height: 150px;">
+                        <option>REQ-001: User Authentication & Authorization</option>
+                        <option>REQ-002: Data Encryption & Security</option>
+                        <option>REQ-003: Role-Based Access Control</option>
+                        <option>REQ-004: Audit Trail & Logging</option>
+                        <option>REQ-005: HIPAA Compliance</option>
+                        <option>REQ-006: PCI-DSS Compliance</option>
+                    </select>
+                    <small class="text-secondary mt-1">Hold Ctrl/Cmd to select multiple requirements</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <input type="text" class="form-input" placeholder="Add tags separated by commas (e.g., smoke, regression, security)">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">References</label>
+                    <textarea class="form-textarea" placeholder="Add links to related documents, specifications, or external resources"></textarea>
+                </div>
+            </div>
+            
+            <div id="tab-attachments" class="tab-content">
+                <div class="file-upload">
+                    <input type="file" id="fileInput" multiple>
+                    <label for="fileInput">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">📎</div>
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;">Click to upload files</div>
+                        <div class="text-secondary text-sm">Screenshots, test data files, or supporting documents</div>
+                    </label>
+                </div>
+                
+                <div class="form-group mt-2">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea class="form-textarea" placeholder="Any additional information or special instructions"></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('newTestCase')">Cancel</button>
+                <button class="btn btn-secondary" onclick="saveTestCaseDraft()">Save as Draft</button>
+                <button class="btn btn-primary" onclick="submitTestCase()">Create Test Case</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal: New Test Plan -->
+    <div id="modal-newTestPlan" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Test Plan</h3>
+                <button class="modal-close" onclick="closeModal('newTestPlan')">×</button>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Plan Name *</label>
+                    <input type="text" id="planName" class="form-input" placeholder="Enter test plan name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="planDescription" class="form-textarea" placeholder="Plan description"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Industry *</label>
+                        <select id="planIndustry" class="form-select">
+                            <option>Select Industry</option>
+                            <option>Real Estate</option>
+                            <option>Healthcare</option>
+                            <option>Food & Beverage</option>
+                            <option>Brokerage</option>
+                            <option>AI/ML</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Assigned To</label>
+                        <select id="planAssignedTo" class="form-select">
+                            <option>Select Team Member</option>
+                            <option>Sarah Johnson</option>
+                            <option>Michael Chen</option>
+                            <option>Alex Rodriguez</option>
+                            <option>David Kumar</option>
+                            <option>Emma Wilson</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('newTestPlan')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitTestPlan()">Create Plan</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal: New Defect -->
+    <div id="modal-newDefect" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Report New Defect</h3>
+                <button class="modal-close" onclick="closeModal('newDefect')">×</button>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Defect Title *</label>
+                    <input type="text" id="defectTitle" class="form-input" placeholder="Brief description of the issue">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea id="defectDescription" class="form-textarea" placeholder="Detailed description of the defect"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Severity *</label>
+                        <select id="defectSeverity" class="form-select">
+                            <option>Critical</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Priority *</label>
+                        <select id="defectPriority" class="form-select">
+                            <option>Critical</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Steps to Reproduce</label>
+                    <textarea id="defectSteps" class="form-textarea" placeholder="1. Step one&#10;2. Step two&#10;3. Step three"></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('newDefect')">Cancel</button>
+                <button class="btn btn-danger" onclick="submitDefect()">Report Defect</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+    <script>
+        // Page Navigation with data loading
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            const targetPage = document.getElementById('page-' + pageId);
+            if (targetPage) {
+                targetPage.style.display = 'block';
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            event?.target?.closest('.nav-item')?.classList.add('active');
+            
+            // Load data for the selected page
+            switch(pageId) {
+                case 'dashboard':
+                    loadDashboardStats();
+                    loadTestPlans();
+                    loadDefects();
+                    break;
+                case 'test-cases':
+                    if (typeof loadTestCases === 'function') {
+                        loadTestCases();
+                    }
+                    break;
+                case 'defects':
+                    if (typeof loadDefects === 'function') {
+                        loadDefects();
+                    }
+                    break;
+                case 'test-plans':
+                    if (typeof loadAllTestPlans === 'function') {
+                        loadAllTestPlans();
+                    }
+                    break;
+                case 'analytics':
+                    if (typeof loadAnalytics === 'function') {
+                        loadAnalytics();
+                    }
+                    break;
+            }
+        }
+        
+        // Modal Management
+        function openModal(modalId) {
+            const modal = document.getElementById('modal-' + modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById('modal-' + modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Close modal on backdrop click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+        
+        // Tab Switching
+        function switchTab(event, tabId) {
+            const container = event.target.closest('.modal-content') || document;
+            
+            container.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            container.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            const targetContent = container.querySelector('#tab-' + tabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+            
+            event.target.classList.add('active');
+        }
+        
+        // Dropdown Toggle
+        function toggleDropdown(button) {
+            const dropdown = button.nextElementSibling;
+            
+            document.querySelectorAll('.action-dropdown').forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.remove('active');
+                }
+            });
+            
+            dropdown.classList.toggle('active');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.action-menu')) {
+                document.querySelectorAll('.action-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            }
+        });
+        
+        // Generate Report Function
+        function generateReport(reportType) {
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'alert alert-info';
+            loadingMessage.innerHTML = `
+                <span class="loading-spinner"></span>
+                <span>Generating ${reportType.replace('-', ' ')} report... This includes all deliverables from the QA/QC manual.</span>
+            `;
+            
+            const reportsPage = document.getElementById('page-reports');
+            reportsPage.insertBefore(loadingMessage, reportsPage.children[1]);
+            
+            setTimeout(() => {
+                loadingMessage.remove();
+                
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success';
+                successAlert.innerHTML = `
+                    <span>✅</span>
+                    <span>Report generated successfully! The report includes all testing deliverables and can be downloaded.</span>
+                `;
+                reportsPage.insertBefore(successAlert, reportsPage.children[1]);
+                
+                setTimeout(() => successAlert.remove(), 5000);
+            }, 2000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('QA/QC Testing Management System initialized');
+            
+            // Animate stats on load
+            document.querySelectorAll('.stat-value').forEach((stat, index) => {
+                stat.style.opacity = '0';
+                stat.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    stat.style.transition = 'all 0.5s ease';
+                    stat.style.opacity = '1';
+                    stat.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
